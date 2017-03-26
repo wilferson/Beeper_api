@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/slimphp/Twig-View.svg?branch=master)](https://travis-ci.org/slimphp/Twig-View)
 
-This is a Slim Framework view helper built on top of the Twig templating component. You can use this component to create and render templates in your Slim Framework application. It works with Twig 1.18+ (PHP5.5+) and with Twig 2 (PHP7).
+This is a Slim Framework view helper built on top of the Twig templating component. You can use this component to create and render templates in your Slim Framework application.
 
 ## Install
 
@@ -12,7 +12,7 @@ Via [Composer](https://getcomposer.org/)
 $ composer require slim/twig-view
 ```
 
-Requires Slim Framework 3 and PHP 5.5.0 or newer.
+Requires Slim Framework 3 and PHP 5.4.0 or newer.
 
 ## Usage
 
@@ -23,18 +23,17 @@ $app = new \Slim\App();
 // Fetch DI Container
 $container = $app->getContainer();
 
-// Register Twig View helper
-$container['view'] = function ($c) {
-    $view = new \Slim\Views\Twig('path/to/templates', [
-        'cache' => 'path/to/cache'
-    ]);
-    
-    // Instantiate and add Slim specific extension
-    $basePath = rtrim(str_ireplace('index.php', '', $c['request']->getUri()->getBasePath()), '/');
-    $view->addExtension(new Slim\Views\TwigExtension($c['router'], $basePath));
+// Instantiate and add Slim specific extension
+$view = new \Slim\Views\Twig('path/to/templates', [
+    'cache' => 'path/to/cache'
+]);
+$view->addExtension(new Slim\Views\TwigExtension(
+    $container->get('router'),
+    $container->get('request')->getUri()
+));
 
-    return $view;
-};
+// Register Twig View helper
+$container->register($view);
 
 // Define named route
 $app->get('/hello/{name}', function ($request, $response, $args) {
@@ -49,14 +48,14 @@ $app->run();
 
 ## Custom template functions
 
-This component exposes a custom `path_for()` function to your Twig templates. You can use this function to generate complete URLs to any Slim application named route. This is an example Twig template:
+This component exposes a custom `url_for()` function to your Twig templates. You can use this function to generate complete URLs to any Slim application named route. This is an example Twig template:
 
     {% extends "layout.html" %}
 
     {% block body %}
     <h1>User List</h1>
     <ul>
-        <li><a href="{{ path_for('profile', { 'name': 'josh' }) }}">Josh</a></li>
+        <li><a href="{{ url_for('profile', { 'name': 'josh' }) }}">Josh</a></li>
     </ul>
     {% endblock %}
 

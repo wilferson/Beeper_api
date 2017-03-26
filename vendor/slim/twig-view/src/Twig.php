@@ -9,6 +9,7 @@
 namespace Slim\Views;
 
 use Psr\Http\Message\ResponseInterface;
+use Slim\Views\TwigExtension;
 
 /**
  * Twig View
@@ -19,7 +20,7 @@ use Psr\Http\Message\ResponseInterface;
  *
  * @link http://twig.sensiolabs.org/
  */
-class Twig implements \ArrayAccess
+class Twig implements \ArrayAccess, \Pimple\ServiceProviderInterface
 {
     /**
      * Twig loader
@@ -49,13 +50,24 @@ class Twig implements \ArrayAccess
     /**
      * Create new Twig view
      *
-     * @param string|array $path     Path(s) to templates directory
-     * @param array        $settings Twig environment settings
+     * @param string $path     Path to templates directory
+     * @param array  $settings Twig environment settings
      */
     public function __construct($path, $settings = [])
     {
-        $this->loader = $this->createLoader(is_string($path) ? [$path] : $path);
+        $this->loader = new \Twig_Loader_Filesystem($path);
         $this->environment = new \Twig_Environment($this->loader, $settings);
+    }
+
+    /**
+     * Register service with container
+     *
+     * @param Container $container The Pimple container
+     */
+    public function register(\Pimple\Container $container)
+    {
+        // Register this view with the Slim container
+        $container['view'] = $this;
     }
 
     /********************************************************************************
@@ -65,7 +77,7 @@ class Twig implements \ArrayAccess
     /**
      * Proxy method to add an extension to the Twig environment
      *
-     * @param \Twig_ExtensionInterface $extension A single extension instance or an array of instances
+     * @param array|object $extension A single extension instance or an array of instances
      */
     public function addExtension(\Twig_ExtensionInterface $extension)
     {
@@ -89,21 +101,6 @@ class Twig implements \ArrayAccess
     }
 
     /**
-     * Fetch rendered string
-     *
-     * @param  string $string String
-     * @param  array  $data   Associative array of template variables
-     *
-     * @return string
-     */
-    public function fetchFromString($string ="", $data = [])
-    {
-        $data = array_merge($this->defaultVariables, $data);
-
-        return $this->environment->createTemplate($string)->render($data);
-    }
-
-    /**
      * Output rendered template
      *
      * @param ResponseInterface $response
@@ -116,27 +113,6 @@ class Twig implements \ArrayAccess
          $response->getBody()->write($this->fetch($template, $data));
 
          return $response;
-    }
-
-    /**
-     * Create a loader with the given path
-     *
-     * @param array $paths
-     * @return \Twig_Loader_Filesystem
-     */
-    private function createLoader(array $paths)
-    {
-        $loader = new \Twig_Loader_Filesystem();
-
-        foreach ($paths as $namespace => $path) {
-            if (is_string($namespace)) {
-                $loader->setPaths($path, $namespace);
-            } else {
-                $loader->addPath($path);
-            }
-        }
-
-        return $loader;
     }
 
     /********************************************************************************
@@ -156,7 +132,7 @@ class Twig implements \ArrayAccess
     /**
      * Return Twig environment
      *
-     * @return \Twig_Environment
+     * @return \Twig_EnvironmentInterface
      */
     public function getEnvironment()
     {
