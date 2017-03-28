@@ -1,5 +1,5 @@
 <?php
-
+use Respect\Validation\Validator as v;
 session_start();
 require __DIR__ .'/../vendor/autoload.php';
 
@@ -37,6 +37,26 @@ $container['db']=function ($container) use ($capsule)
 {
 return $capsule;
 };
+
+// Agregando objetos  al contenddeor
+$container['validator']=function ($container) 
+{
+return new Bootstrap\Validation\Validator;
+};
+$container['HomeController']= function ($container){
+    return new \Bootstrap\Controllers\HomeController($container);
+};
+$container['AuthController']= function ($container){
+    return new \Bootstrap\Controllers\Auth\AuthController($container);
+};
+$container['auth']= function ($container){
+    return new \Bootstrap\Auth\Auth;
+};
+
+$container['flash'] = function () {
+    return new \Slim\Flash\Messages();
+};
+
 $container['view']=function($container){
     $view=new \Slim\Views\Twig(__DIR__ . '/../resources/views',[
         'cache'=>false,
@@ -46,16 +66,23 @@ $container['view']=function($container){
         $container->router,
         $container->request->getUri()    
     ));
+
+    $view->getEnvironment()->addGlobal('auth',$container->auth);
+
+    $view->getEnvironment()->addGlobal('flash',$container->flash);
     return $view;
 };
 
 
-$container['HomeController']= function ($container){
-    return new \Bootstrap\Controllers\HomeController($container);
-};
 
+//Configurar los Middlware
 
+$app->add(new \Bootstrap\Middleware\ValidationErrorsMiddleware($container));
+$app->add(new \Bootstrap\Middleware\OldInputMiddleware($container));
 
+// configurar las reglas de validacion 
+
+v::with('Bootstrap\\Validation\\Rules\\');
 //require las rutas
 
 require __DIR__ . '/routes/other.php';

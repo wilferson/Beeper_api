@@ -5,7 +5,41 @@
 
 <div class="row">
     <div class="col-md-6 col-md-offset-3">
-        Sign Up
+        <div class="panel panel-default">
+            
+            <div class="panel-heading">Registro</div>
+            <div class="panel-body">
+              {{ old_data| json_encode }}
+                <form action="{{path_for('auth.signup')}}" method="post">
+                  <div class="form-group{{ errors.email ?' has-error':''}}" >
+                      <label for="email">Email</label>
+                      <input type="email" name="email" id="email" placeholder="you@server.com" class="form-control" value="{{ old_data.email }}">
+                      {% if errors.email %}
+                      <span class="help-block">{{ errors.email | first}}</span>
+                      {% endif %}
+                  </div>
+                   <div class="form-group{{ errors.username ?' has-error':''}}">
+                      <label for="username">Usuario</label>
+                      <input type="text" name="username" id="username" placeholder="Nombre  de Usuario" class="form-control" value="{{ old_data.username }}">
+                      {% if errors.username %}
+                      <span class="help-block">{{ errors.username | first}}</span>
+                      {% endif %}
+                  </div>
+                    <div class="form-group">
+                      <label for="Token">Token</label>
+                      <input type="text" name="token" id="token" placeholder="token de autorizacion" class="form-control" value="{{ old_data.token }}">
+                  </div>
+                   <div class="form-group{{ errors.password ?' has-error':''}}">
+                      <label for="password">Contraseña</label>
+                      <input type="password" name="password" id="password" placeholder="" class="form-control">
+                       {% if errors.password %}
+                      <span class="help-block">{{ errors.password | first}}</span>
+                      {% endif %}
+                  </div>
+                 <button type="submint" class="btn btn-default">Validar</button>
+                </form>
+            </div>
+        </div>   
     </div>
 
 </div>
