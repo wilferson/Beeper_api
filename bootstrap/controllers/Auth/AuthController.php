@@ -47,13 +47,19 @@ class AuthController extends Controller
             'email'=>v::noWhitespace()->notEmpty()->emailAvailable(),
             'username'=>v::alpha()->notEmpty()->usernameAvailable(),
             'password'=>v::noWhitespace()->notEmpty(),
+          
       ]);
 
       if ($validation->failed()) {
           $this->container->flash->addMessage('error-msg','Verifique los datos.');
           return $response->withRedirect($this->container->router->pathFor('auth.signup'));
       }
-
+      //validamos manualmente el token
+      if (!(password_verify(strtoupper($request->getParam('email') . 'beeper_api'),$request->getParam('token') )))
+      {
+         $this->container->flash->addMessage('error-msg','El token es incorrecto. ');
+          return $response->withRedirect($this->container->router->pathFor('auth.signup'));
+      }
 
         $user = User::create([
             'email'=>$request->getParam('email'),

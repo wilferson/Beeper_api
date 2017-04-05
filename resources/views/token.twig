@@ -1,0 +1,37 @@
+{%extends 'templates/app.twig'%}
+
+{%block content%}
+
+
+<div class="row">
+    <div class="col-md-6 col-md-offset-3">
+        <div class="panel panel-default">
+            
+            <div class="panel-heading">Generar un nuevo token.</div>
+            <div class="panel-body">
+              {{ old_data| json_encode }}
+                <form action="{{path_for('token')}}" method="post">
+                   <div class="form-group{{ errors.email ?' has-error':''}}" >
+                      <label for="email">Email</label>
+                      <input type="email" name="email" id="email" placeholder="you@server.com" class="form-control" value="{{ old_data.email }}">
+                      {% if errors.email %}
+                      <span class="help-block">{{ errors.email | first}}</span>
+                      {% endif %}
+                  </div>
+                   <div class="form-group">
+                    <label for="usertype">Tipo de usuario:</label>
+                        <select class="form-control" id="usertype">
+                            <option>Administrador</option>
+                            <option>Creador de contenido</option>
+                        </select>
+                    </div>
+                  
+                 <button type="submint" class="btn btn-default">Entrar</button>
+                </form>
+            </div>
+        </div>   
+    </div>
+
+</div>
+
+{%endblock%}

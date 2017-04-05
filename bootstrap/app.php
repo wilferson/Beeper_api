@@ -46,6 +46,19 @@ return new Bootstrap\Validation\Validator;
 $container['HomeController']= function ($container){
     return new \Bootstrap\Controllers\HomeController($container);
 };
+$container['TokenCreatorController']= function ($container){
+    return new \Bootstrap\Controllers\TokenCreatorController($container);
+};
+$container['ServicesController']= function ($container){
+    return new \Bootstrap\Controllers\Api\ServicesController($container);
+};
+$container['ApiSigninController']= function ($container){
+    return new \Bootstrap\Controllers\Api\ApiSigninController($container);
+};
+$container['ClientsController']= function ($container){
+    return new \Bootstrap\Controllers\Api\ClientsController($container);
+};
+
 $container['AuthController']= function ($container){
     return new \Bootstrap\Controllers\Auth\AuthController($container);
 };
@@ -87,3 +100,4 @@ v::with('Bootstrap\\Validation\\Rules\\');
 
 require __DIR__ . '/routes/other.php';
 require __DIR__ . '/routes/users.php';
+require __DIR__ . '/routes/api.php';
